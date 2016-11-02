@@ -71,6 +71,33 @@ const TCHAR *RRDToolStorageDriver::getName()
    return s_driverName;
 }
 
+const TCHAR *reverseFQDN(const TCHAR *fqdn)
+{
+   char pch[512];
+   char result[512];
+   char value[512];
+   char const dot = '.';
+   int index, start, end;
+
+   strcpy(value, fqdn);
+   start = 0;
+   end = strlen(fqdn)-1;
+   bzero(result,sizeof(result));
+
+   for (index = strlen(value)-1; index >= 0; index--) 
+   {
+      if (value[index] == dot) 
+      {
+         memcpy(result + start, value + index + 1, end - index);
+         end = index - 1;
+         start = strlen(fqdn) - index;
+         memcpy(result + start - 1, &dot, 1);
+      }
+   }
+   memcpy(result + start, value, end + 1);
+   return result;
+}
+
 bool RRDToolStorageDriver::init()
 {
    struct sockaddr_in serv_addr;
@@ -105,23 +132,28 @@ void RRDToolStorageDriver::shutdown()
 bool RRDToolStorageDriver::saveDCItemValue(DCItem *dcObject, time_t timestamp, const TCHAR *value)
 {
    char buffer[256];
+   const char * hostname = dcObject->getOwner()->getName();
    char timestr[32];
+   char inverseHostname[256];
    int n;
    time_t timer;
 
    bzero(buffer,256);
    bzero(timestr, 32);
+//   bzero(hostname,256);
 
+//   hostname =  dcObject->getOwner()->getName();
+//   inverseHostname = reverseFQDN(hostname);
    timer = time(NULL);
-   strcpy(buffer, dcObject->getDescription());
-   strcat(buffer, "@");
-   strcat(buffer, "netxms.ctco.lv");
+   strcat(buffer, reverseFQDN(hostname));
+   strcat(buffer, ".");
+   strcat(buffer, dcObject->getDescription());
    strcat(buffer, " ");
    strcat(buffer, value);
    strcat(buffer, " ");
    sprintf(timestr, "%u", timestamp);
    strcat(buffer, timestr);
-   perror(buffer);
+//   perror(buffer);
    strcat(buffer, "\n");
    n = write(sockfd,buffer,strlen(buffer));
    if (n < 0) 
