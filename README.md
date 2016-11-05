@@ -2,6 +2,6 @@
 
 ## TODO
 - Add more Graphite protocols
-- Adв logging through NetXMS interface
+- Add logging through NetXMS interface
 - Consider UNICODE support
 - Replace special characters (like '/')
