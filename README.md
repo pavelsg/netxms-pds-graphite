@@ -6,3 +6,4 @@
 - Consider UNICODE support
 - Replace special characters (like '/')
 - Add templating support to inject custom attributes
+- Move from RRDTool to separate directory
